@@ -39,9 +39,9 @@ def build_dpr_traindata(
             neg = [corpus[i] for i in ids]
             negatives += neg
 
-    print(questions[:10])
-    print(positives[:10])
-    print(negatives[:10])
+    print("question: ", questions[:10])
+    print("positives: ", positives[:10])
+    print("negatives: ", negatives[:10])
     Q = tokenizer.batch_encode_plus(
         questions,
         padding="max_length",
