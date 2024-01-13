@@ -171,7 +171,7 @@ def main():
         args=args, train_loader=train_loader, val_loader=val_loader
     )
 
-    # q_encoder, ctx_encoder = dpr_trainer.train_biencoder()
+    q_encoder, ctx_encoder = dpr_trainer.train_biencoder()
     # torch.cuda.empty_cache()
     # print("Check with the final state:")
     # dpr_retriever = DPRRetriever(args, q_encoder, ctx_encoder, save_type="final")
