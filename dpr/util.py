@@ -82,11 +82,64 @@ def build_dpr_traindata(
     return data_loader
 
 
+def build_dpr_traindata_bk(
+    df, tokenizer, q_len, ctx_len, batch_size, no_hard, shuffle=False, sub=False
+):
+    questions = df["question"].tolist()
+    positives = df["answer"].tolist()
+    print("question: ", questions[:10])
+    print("positives: ", positives[:10])
+    Q = tokenizer.batch_encode_plus(
+        questions,
+        padding="max_length",
+        truncation=True,
+        max_length=q_len,
+        return_tensors="pt",
+    )
+    P = tokenizer.batch_encode_plus(
+        positives,
+        padding="max_length",
+        truncation=True,
+        max_length=ctx_len,
+        return_tensors="pt",
+    )
+    data_tensor = TensorDataset(
+        Q["input_ids"], Q["attention_mask"], P["input_ids"], P["attention_mask"]
+    )
+    data_loader = DataLoader(data_tensor, batch_size=batch_size, shuffle=shuffle)
+    print(data_loader)
+    return data_loader
+
+
 def build_dpr_testdata(df, tokenizer, q_len, batch_size, shuffle=False, sub=False):
     """
     This funtion builds val and test dataloader for quick evaluating biencoder
     """
     questions = df["tokenized_question"].tolist()
+    if not sub:
+        ans_ids = df["ans_id"].tolist()
+    else:
+        ans_ids = df["ans_sub_id"].tolist()
+    labels = torch.tensor(ans_ids, dtype=torch.long)
+
+    Q = tokenizer.batch_encode_plus(
+        questions,
+        padding="max_length",
+        truncation=True,
+        max_length=q_len,
+        return_tensors="pt",
+    )
+
+    data_tensor = TensorDataset(Q["input_ids"], Q["attention_mask"], labels)
+    data_loader = DataLoader(data_tensor, batch_size=batch_size, shuffle=shuffle)
+    return data_loader
+
+
+def build_dpr_testdata_bk(df, tokenizer, q_len, batch_size, shuffle=False, sub=False):
+    """
+    This funtion builds val and test dataloader for quick evaluating biencoder
+    """
+    questions = df["question"].tolist()
     if not sub:
         ans_ids = df["ans_id"].tolist()
     else:
