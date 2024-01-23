@@ -253,7 +253,7 @@ class DPRRetriever:
         hit_count = 0
         for i in range(len(df)):
             retrieved_ids = retrieved_list[i]
-            ans_ids = [int(x) for x in df["ans_id"][i].split(", ")]
+            ans_ids = [int(x) for x in df["id"][i].split(", ")]
             for a_id in ans_ids:
                 if a_id in retrieved_ids:
                     retrieved_ids.remove(a_id)
