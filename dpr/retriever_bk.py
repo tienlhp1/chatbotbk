@@ -50,7 +50,6 @@ class DPRRetriever:
             self.corpus.load_faiss_index("embeddings", self.args.index_path)
         else:
             self.corpus = self.get_index()
-        print("self.corpus: ", self.corpus[:10])
         end = time.time()
         print(end - start)
 
@@ -253,7 +252,8 @@ class DPRRetriever:
         hit_count = 0
         for i in range(len(df)):
             retrieved_ids = retrieved_list[i]
-            ans_ids = [int(x) for x in df["id"][i].split(", ")]
+            print("retrieved_ids:", retrieved_ids)
+            ans_ids = [df["id"][i]]
             for a_id in ans_ids:
                 if a_id in retrieved_ids:
                     retrieved_ids.remove(a_id)
