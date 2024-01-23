@@ -175,12 +175,12 @@ def main():
     torch.cuda.empty_cache()
     print("Check with the final state:")
     dpr_retriever = DPRRetriever(args, q_encoder, ctx_encoder, save_type="final")
-    dpr_retriever.test_on_data(top_k=[1, 5, 10, 30, 100])
+    dpr_retriever.test_on_data(top_k=[1, 5, 10, 30, 100], segmented=False)
     # dpr_retriever.increase_neg(no_negs=7, segmented=True)
     print("Check with the best state:")
     torch.cuda.empty_cache()
     dpr_retriever = DPRRetriever(args, save_type="best")
-    dpr_retriever.test_on_data(top_k=[1, 5, 10, 30, 100])
+    dpr_retriever.test_on_data(top_k=[1, 5, 10, 30, 100], segmented=False)
     # dpr_retriever.increase_neg(no_negs=7, segmented=True)
 
 
