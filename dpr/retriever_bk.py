@@ -61,14 +61,14 @@ class DPRRetriever:
                 lambda example: {
                     "embeddings": self.ctx_encoder.get_representation(
                         self.dpr_tokenizer.encode_plus(
-                            example["tokenized_text"],
+                            example["answer"],
                             padding="max_length",
                             truncation=True,
                             max_length=self.args.ctx_len,
                             return_tensors="pt",
                         )["input_ids"].to(self.device),
                         self.dpr_tokenizer.encode_plus(
-                            example["tokenized_text"],
+                            example["answer"],
                             padding="max_length",
                             truncation=True,
                             max_length=self.args.ctx_len,
@@ -79,14 +79,12 @@ class DPRRetriever:
                     .numpy()
                 }
             )
-        print("corpus_with_embeddings: ", corpus_with_embeddings[:10])
         corpus_with_embeddings.add_faiss_index(
             column="embeddings", metric_type=faiss.METRIC_INNER_PRODUCT
         )
         index_path = self.args.biencoder_path.split("/")[-1]
         index_path = "outputs/index/index_" + self.save_type + ".faiss"
         corpus_with_embeddings.save_faiss_index("embeddings", index_path)
-        print("corpus_with_embeddings1: ", corpus_with_embeddings[:10])
         return corpus_with_embeddings
 
     def retrieve(self, question, top_k=100, segmented=False):
@@ -125,12 +123,10 @@ class DPRRetriever:
 
     def test_on_data(self, top_k=[100], segmented=True, train=False):
         result = []
-        dtest = pd.read_csv(os.path.join(self.args.data_dir, "ttest.csv"))
-        dval = pd.read_csv(os.path.join(self.args.data_dir, "tval.csv"))
-        print("corpus_with_embeddings: ", dval[:10])
-        print("corpus_with_embeddings: ", dval[:10])
+        dtest = pd.read_csv(os.path.join(self.args.data_dir, "test.csv"))
+        dval = pd.read_csv(os.path.join(self.args.data_dir, "val.csv"))
         if train:
-            dtrain = pd.read_csv(os.path.join(self.args.data_dir, "ttrain.csv"))
+            dtrain = pd.read_csv(os.path.join(self.args.data_dir, "train.csv"))
             train_retrieved = self.retrieve_on_data(
                 dtrain, name="train", top_k=max(top_k), segmented=segmented
             )
@@ -181,13 +177,8 @@ class DPRRetriever:
 
         for i in range(len(df)):
             tokenized_question = df["tokenized_question"][i]
-            retrieved_ids, scores = self.retrieve(
-                tokenized_question, top_k, segmented=True
-            )
+            retrieved_ids, _ = self.retrieve(tokenized_question, top_k, segmented=True)
             retrieved_list.append(retrieved_ids)
-            print("predict: ", i)
-            print("retrieved_ids: ", retrieved_ids)
-            print("scores: ", scores)
         save_file = "outputs/" + self.save_type + "_" + name + "_retrieved.json"
         with open(save_file, "w") as f:
             json.dump(retrieved_list, f, ensure_ascii=False, indent=4)
@@ -262,7 +253,7 @@ class DPRRetriever:
         hit_count = 0
         for i in range(len(df)):
             retrieved_ids = retrieved_list[i]
-            ans_ids = [int(x) for x in df["id"][i].split(", ")]
+            ans_ids = [int(x) for x in df["ans_id"][i].split(", ")]
             for a_id in ans_ids:
                 if a_id in retrieved_ids:
                     retrieved_ids.remove(a_id)
