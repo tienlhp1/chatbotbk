@@ -204,7 +204,7 @@ def preprocess_article_title(article_title):
     Preprocess titles of documents
     """
     article_title = lower_or_keep(article_title)
-    article_title = " ".join(article_title.split()[2:])  # Dieu 1.
+    #article_title = " ".join(article_title.split()[2:])  # Dieu 1.
     article_title = remove_dieu_number(article_title)
     # article_title = remove_other_number_by_zero(article_title)
     article_title = remove_punct(article_title)
